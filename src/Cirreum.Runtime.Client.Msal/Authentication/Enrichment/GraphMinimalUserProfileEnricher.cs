@@ -96,7 +96,7 @@ public sealed class GraphMinimalUserProfileEnricher(
 				// Copy the photo stream to a memory stream
 				// to get the bytes out of it
 				var memoryStream = new MemoryStream();
-				photoStream.CopyTo(memoryStream);
+				await photoStream.CopyToAsync(memoryStream);
 				var photoBytes = memoryStream.ToArray();
 
 				// Generate a data URI for the photo

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
+using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -43,7 +44,9 @@ public abstract class CommonGraphProfileEnricher(
 		ArgumentNullException.ThrowIfNull(profile, nameof(profile));
 		ArgumentNullException.ThrowIfNull(identity, nameof(identity));
 
-		logger.LogDebug("{Enricher} enriching profile from the Microsoft Graph", this.GetType().Name);
+		if (logger.IsEnabled(LogLevel.Debug)) {
+			logger.LogDebug("{Enricher} enriching profile from the Microsoft Graph", this.GetType().Name);
+		}
 
 		//
 		// Process Common claims
@@ -131,7 +134,7 @@ public abstract class CommonGraphProfileEnricher(
 		profile.Email = graphUser.Mail;
 		profile.PhoneNumber = graphUser.MobilePhone;
 		profile.PhoneNumbers = graphUser.BusinessPhones ?? [];
-		profile.Locale = graphUser.PreferredLanguage ?? Thread.CurrentThread.CurrentUICulture.Name;
+		profile.Locale = graphUser.PreferredLanguage ?? CultureInfo.CurrentUICulture.Name;
 		profile.JobTitle = graphUser.JobTitle;
 		profile.Company = graphUser.CompanyName;
 		profile.OfficeLocation = graphUser.OfficeLocation;
@@ -159,8 +162,8 @@ public abstract class CommonGraphProfileEnricher(
 
 		// MailboxSettings
 		profile.TimeZone = mailSettings.TimeZone ?? clock.LocalTimeZoneId;
-		profile.DateFormat = mailSettings.DateFormat ?? Thread.CurrentThread.CurrentUICulture.DateTimeFormat.ShortDatePattern;
-		profile.TimeFormat = mailSettings.TimeFormat ?? Thread.CurrentThread.CurrentUICulture.DateTimeFormat.ShortTimePattern;
+		profile.DateFormat = mailSettings.DateFormat ?? CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern;
+		profile.TimeFormat = mailSettings.TimeFormat ?? CultureInfo.CurrentUICulture.DateTimeFormat.ShortTimePattern;
 
 		// Update timestamp
 		profile.CreatedAt = graphUser.CreatedDateTime ?? clock.LocalOffset;
